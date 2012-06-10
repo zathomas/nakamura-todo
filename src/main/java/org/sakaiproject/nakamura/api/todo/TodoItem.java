@@ -25,4 +25,12 @@ public class TodoItem {
     public String details;
     public Date due;
     public boolean isComplete;
+
+    public TodoItem(boolean isComplete, String description, String details) {
+      this.isComplete = isComplete;
+      this.description = description;
+      this.details = details;
+  }
+
+  public TodoItem() { }
 }
