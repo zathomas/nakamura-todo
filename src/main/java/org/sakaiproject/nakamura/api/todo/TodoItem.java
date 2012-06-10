@@ -22,6 +22,7 @@ import java.util.Date;
 public class TodoItem {
     public String id;
     public String description;
+    public String details;
     public Date due;
     public boolean isComplete;
 }

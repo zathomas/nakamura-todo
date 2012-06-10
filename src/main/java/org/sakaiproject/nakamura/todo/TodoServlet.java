@@ -15,33 +15,33 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.sakaiproject.nakamura.acme;
+package org.sakaiproject.nakamura.todo;
 
 
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.sakaiproject.nakamura.api.todo.TodoService;
+import org.sakaiproject.nakamura.api.todo.TodoItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The <code>TodoServlet</code> provides access to a personal todo list.
  */
 
-@SlingServlet(paths = "/api/todo")
+@SlingServlet(paths = "/api/todo/mine")
 public class TodoServlet extends SlingAllMethodsServlet {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TodoServlet.class);
 
-  @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+  @Reference
   TodoService todoService;
 
   /**
@@ -57,7 +57,24 @@ public class TodoServlet extends SlingAllMethodsServlet {
     throws ServletException, IOException {
     LOGGER.info("TodoServlet");
 
-    response.getWriter().write("Todo: ");
+    List<TodoItem> myTodos = todoService.getIncompleteItemsForPerson(request.getRemoteUser());
+
+    response.setContentType("application/json");
+    response.getWriter().write(makeJson(myTodos));
+  }
+  
+  protected static String makeJson(List<TodoItem> todos) {
+    StringBuilder json = new StringBuilder("{\"items\":" + todos.size() + ",\"results\":[");
+    String delimiter = "";
+    for (TodoItem todo : todos) {
+      json.append(delimiter);
+      delimiter = ",";
+      json.append("{\"completed\": "  + todo.isComplete + ", ");
+      json.append("\"description\": \"" + todo.description + "\", ");
+      json.append("\"details\": \""     + todo.details + "\"}");
+    }
+    json.append("]}");
+    return json.toString();
   }
 
 }
