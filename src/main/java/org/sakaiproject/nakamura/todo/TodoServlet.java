@@ -36,7 +36,7 @@ import java.util.List;
  * The <code>TodoServlet</code> provides access to a personal todo list.
  */
 
-@SlingServlet(paths = "/api/todo/mine")
+@SlingServlet(methods = { "GET", "POST" }, paths = "/api/todo/mine")
 public class TodoServlet extends SlingAllMethodsServlet {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TodoServlet.class);
@@ -45,7 +45,7 @@ public class TodoServlet extends SlingAllMethodsServlet {
   TodoService todoService;
 
   /**
-   * We show how much inventory is left for a given SKU number.
+   * Return JSON for the current user's todo list
    *
    * @param request
    * @param response
@@ -55,12 +55,17 @@ public class TodoServlet extends SlingAllMethodsServlet {
   @Override
   protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response)
     throws ServletException, IOException {
-    LOGGER.info("TodoServlet");
+    LOGGER.info("TodoServlet GET");
 
     List<TodoItem> myTodos = todoService.getIncompleteItemsForPerson(request.getRemoteUser());
 
     response.setContentType("application/json");
     response.getWriter().write(makeJson(myTodos));
+  }
+
+  @Override
+  protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response) {
+    LOGGER.info("TodoServlet POST");
   }
   
   protected static String makeJson(List<TodoItem> todos) {

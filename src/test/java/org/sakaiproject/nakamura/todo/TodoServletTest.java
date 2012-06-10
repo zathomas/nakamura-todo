@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.omg.CORBA.AnySeqHolder;
 import org.sakaiproject.nakamura.api.todo.TodoItem;
 import org.sakaiproject.nakamura.api.todo.TodoService;
 

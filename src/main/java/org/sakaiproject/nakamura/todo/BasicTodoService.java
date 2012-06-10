@@ -17,23 +17,43 @@
  */
 package org.sakaiproject.nakamura.todo;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.scr.annotations.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.sakaiproject.nakamura.api.todo.TodoItem;
 import org.sakaiproject.nakamura.api.todo.TodoService;
 
 @Service
 @Component
 public class BasicTodoService implements TodoService {
+
+ private Map<String, List<TodoItem>> todoStorage;
+
+ @Activate
+ public void init() {
+   todoStorage = new HashMap<String, List<TodoItem>>();
+   todoStorage.put("zach", Arrays.asList(new TodoItem[]{
+       new TodoItem(false, "Brush teeth.", "and floss"),
+       new TodoItem(false, "Play video games.", "until dawn.")
+   }));
+ }
  public List<TodoItem> getIncompleteItemsForPerson(String personId) {
-     return new ArrayList<TodoItem>();
+   List<TodoItem> todoItems = todoStorage.get(personId);
+   if (todoItems == null) {
+     todoItems = Arrays.asList(new TodoItem[0]);
+   }
+   return todoItems;
  }
  
  public void saveItemsForPerson(List<TodoItem> items, String personId) {
-     // nothing yet
+     todoStorage.put(personId, items);
  }
 
 }
