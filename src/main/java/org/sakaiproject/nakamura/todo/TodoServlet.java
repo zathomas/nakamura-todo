@@ -22,6 +22,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.request.RequestParameter;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.sakaiproject.nakamura.api.todo.TodoService;
 import org.sakaiproject.nakamura.api.todo.TodoItem;
@@ -29,7 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,8 +67,22 @@ public class TodoServlet extends SlingAllMethodsServlet {
   }
 
   @Override
-  protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response) {
+  protected void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response)
+    throws ServletException, IOException {
     LOGGER.info("TodoServlet POST");
+    List<TodoItem> todoItemList = new ArrayList<TodoItem>();
+    RequestParameter[] todos = request.getRequestParameters("todos");
+    if (todos == null) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST, "todos parameter is required");
+      return;
+    }
+    String personId = request.getRemoteUser();
+    for (RequestParameter parameter : todos) {
+      String[] fields = parameter.getString().split("\\|");
+      todoItemList.add(new TodoItem(Boolean.valueOf(fields[0]), fields[1], fields[2]));
+    }
+
+    todoService.saveItemsForPerson(todoItemList, personId);
   }
   
   protected static String makeJson(List<TodoItem> todos) {
